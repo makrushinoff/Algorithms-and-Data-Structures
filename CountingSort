@@ -1,0 +1,21 @@
+def counting_sort(listp):
+    max_value = listp[0]
+    for i in range(1, len(listp)):
+        if max_value < listp[i]:
+            max_value = listp[i]
+
+    sorted_list = [0] * (max_value + 1)
+    for i in listp:
+        sorted_list[i] += 1
+
+    listp.clear()
+    for i in range(max_value + 1):
+        for j in range(sorted_list[i]):
+            listp.append(i)
+
+
+list1 = list(map(int, input().split()))
+counting_sort(list1)
+
+for g in list1:
+    print(g, end=' ')
