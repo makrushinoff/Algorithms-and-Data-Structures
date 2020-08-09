@@ -1,0 +1,166 @@
+class Hash_set:
+    class Node:
+        def __init__(self, key, next):
+            self.key = key
+            self.next = next
+
+    def __init__(self, value, bucketcount=16, load_factor=0.75):
+        self.bucket_count = bucketcount
+        self.arr = [None] * self.bucket_count
+        self.size = 0
+        self.load_factor = load_factor
+        self.addition(value)
+
+    def find_index(self, key):
+        return key % self.bucket_count
+
+    @staticmethod
+    def put_at_index(arr, index, value):
+        arr[index] = Hash_set.Node(value, arr[index])
+
+    def resize(self, new_bucket_count):
+        self.bucket_count = new_bucket_count
+        new_arr = [None] * self.bucket_count
+        for node in self.arr:
+            while node is not None:
+                Hash_set.put_at_index(new_arr, self.find_index(node.key), node.key)
+                node = node.next
+        self.arr = new_arr
+
+    def addition(self, value):
+        if value not in self:
+            if (len(self) + 1) / self.bucket_count > self.load_factor:
+                self.resize(self.bucket_count * 2)
+            index = self.find_index(value)
+            self.arr[index] = Hash_set.Node(value, self.arr[index])
+            self.size += 1
+    
+    def __str__(self):
+        if len(self) == 0:
+            return '-1'
+        output = ''
+        for node in self.arr:
+            while node is not None:
+                output += str(node.key) + ' '
+                node = node.next
+        return output
+    
+    def __contains__(self, key):
+        index = self.find_index(key)
+        node = self.arr[index]
+        while node is not None:
+            if node.key == key:
+                return True
+            node = node.next
+        return False
+
+    def __len__(self):
+        return self.size
+
+
+class InvertedIndex:
+    class Node:
+        def __init__(self, key, next, value):
+            self.key = key
+            self.set = value
+            self.next = next
+
+    def __init__(self, bucketcount=16, load_factor=0.75):
+        self.bucket_count = bucketcount
+        self.arr = [None] * self.bucket_count
+        self.size = 0
+        self.load_factor = load_factor
+
+    @staticmethod
+    def hash(string):
+        sum = 0
+        for i in range(len(string)):
+            sum += ord(string[i]) * 31 ^ i
+        return sum
+
+    def find_index(self, key):
+        return InvertedIndex.hash(key) % self.bucket_count
+
+    def put(self, key, value):
+        index = self.find_index(key)
+        node = self.arr[index]
+        while node is not None:
+            if key == node.key:
+                node.set.addition(value)
+                return
+            node = node.next
+        self.arr[index] = InvertedIndex.Node(key, self.arr[index], Hash_set(value))
+        self.size += 1
+
+    @staticmethod
+    def insert_at_index(arr, node, index):
+        arr[index] = InvertedIndex.Node(node.key, arr[index], node.set)
+
+    def resize(self, new_bucket_count):
+        new_arr = [None] * new_bucket_count
+        for node in self.arr:
+            while node is not None:
+                index = InvertedIndex.hash(node.key) % new_bucket_count
+                InvertedIndex.insert_at_index(new_arr, node, index)
+                node = node.next
+        self.arr = new_arr
+        self.bucket_count = new_bucket_count
+
+    def delete(self, key):
+        index = self.find_index(key)
+
+        node = self.arr[index]
+        previous_node = None
+        while node is not None:
+            if key == node.key:
+                if previous_node:
+                    previous_node.next = node.next
+                else:
+                    self.arr[index] = None
+                return node.value
+            previous_node = node
+            node = node.next
+        raise KeyError
+
+    def __setitem__(self, key, value):
+        if (self.size + 1) / self.bucket_count > self.load_factor:
+            self.resize(self.bucket_count * 2)
+        self.put(key, value)
+
+    def __getitem__(self, key):
+        index = self.find_index(key)
+        node = self.arr[index]
+        while node is not None:
+            if key == node.key:
+                return node.set
+            node = node.next
+        raise KeyError
+
+
+
+    def get_average_documents_per_key(self):
+        sum = 0
+        for i in self.arr:
+            while i is not None:
+                sum += len(i.set)
+                i = i.next
+        avarage = sum / self.size
+        return int(round(avarage, 0))
+
+
+if __name__ == "__main__":
+    invertedindex = InvertedIndex()
+    num_documents = int(input())
+    for i in range(num_documents):
+        documents = input().split()
+        for word in documents:
+            invertedindex[word] = i
+
+    num_queries = int(input())
+    for i in range(num_queries):
+        try:
+            print(invertedindex[input()])
+        except KeyError:
+            print(-1)
+
+    print(invertedindex.get_average_documents_per_key())
