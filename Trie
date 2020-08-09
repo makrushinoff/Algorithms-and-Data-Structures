@@ -1,0 +1,44 @@
+R = 26
+indexes = 0
+
+class Trie:
+    def __init__(self):
+        self.leaf = False
+        self.next = [None] * R
+
+    def put(self, key, obj):
+        walk = obj
+        for i in range(len(key)):
+            index = ord(key[i]) - ord('a')
+            if walk.next[index] == None:
+                walk.next[index] = Trie()
+            walk = walk.next[index]
+        walk.leaf = True
+
+    def build_trie(self, arr, obj):
+        for i in range(len(arr)):
+            self.put(arr[i], obj)
+
+    def count(self, obj):
+        sum = 0
+        for i in range(R):
+            if obj.next[i] != None:
+                sum += 1
+                global indexes
+                indexes = i
+        return sum
+
+    def longest_common_prefix(self, obj):
+        walk = obj
+        prefix = ''
+        while (self.count(walk) == 1 and walk.leaf == False):
+            walk = walk.next[indexes]
+            prefix += chr(ord('a') + indexes)
+        return prefix or '-'
+
+if __name__ == "__main__":
+    
+    arr = input().split()
+    trie = Trie()
+    trie.build_trie(arr, trie)
+    print(trie.longest_common_prefix(trie))
