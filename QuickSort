@@ -1,0 +1,71 @@
+list1 = input().split(" ")
+
+if list1[0].find(".") != -1:
+    i = 0 
+    for a in list1:
+        list1[i] = float(a)
+        i += 1
+    
+elif list1[0].isdigit():
+    i = 0
+    for a in list1:
+        list1[i] = int(a)
+        i += 1
+        
+
+def partition(listp, start, end):
+    if end - start < 3:
+        pivot = start
+    else:
+        pivot = median(listp, start, end - 1, start + (end - start) // 2)
+        listp[start], listp[pivot] = listp[pivot], listp[start]
+        pivot = start
+        
+        
+    i, j = start + 1, end - 1
+    
+    while True:
+        while listp[i] <= listp[pivot] and i != j:
+            i += 1
+
+        while listp[j] > listp[pivot] and i != j:
+            j -= 1
+
+        if i == j:
+            break
+
+        listp[i], listp[j] = listp[j], listp[i]
+        i, j = i + 1, j -1
+        if i > j:
+            break
+            
+    swap = i
+    if listp[i] > listp[pivot]:
+        swap -= 1
+    listp[pivot], listp[swap] = listp[swap], listp[pivot]
+    return swap
+
+
+def sorting(listp, start, end):
+    if end - start <= 1:
+        return
+    pivot = partition(listp, start, end)
+    sorting(listp, start, pivot)
+    sorting(listp, pivot + 1, end)
+        
+def median(listp, i1, i2, i3):
+    med_list = [(i1, listp[i1]), (i2, listp[i2]), (i3, listp[i3])]
+    for i in range(2):
+        for j in range(2 - i):
+            if med_list[j][1] > med_list[j + 1][1]:
+                med_list[j], med_list[j + 1] = med_list[j + 1], med_list[j]
+                
+    return med_list[1][0]
+
+def quicksort(listp):
+    sorting(listp, 0, len(listp))
+
+quicksort(list1)
+
+for g in list1:
+    print(g, end=" ")
