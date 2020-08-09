@@ -1,0 +1,174 @@
+class Node:
+    def __init__(self, value, prev = None, next = None):
+        self.value = value
+        self.prev = prev
+        self.next = next
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None
+        self.length = 0
+        
+    def __len__(self):
+        return self.length
+
+    def size(self):
+        return self.__len__()
+
+    class Iterator:
+        def __init__(self, head):
+            self.current = head
+
+        def __next__(self):
+            if self.current is None:
+                raise StopIteration
+            value = self.current.value
+            self.current = self.current.next
+            return value
+
+    def __iter__(self):
+        return self.Iterator(self.head)
+
+    def __getitem__(self, index):
+        current = self.head
+        for ind in range(index):
+            current = current.next
+        return current.value
+
+    def is_empty(self):
+        return self.head is None
+
+    def push(self, value):
+        new_node = Node(value)
+        if self.is_empty():
+            self.head = new_node
+            self.tail = new_node
+            self.length += 1
+        else:
+            new_node.prev = self.tail
+            self.tail.next = new_node
+            self.tail = new_node
+            self.length += 1
+
+    def pop(self):
+        if self.is_empty():
+            return None
+        poped = self.tail
+        if len(self) == 1:
+            self.tail = None
+            self.head = None
+            self.length -= 1
+            return poped
+        self.tail = self.tail.prev
+        self.tail.next = None
+        self.length -= 1
+        return poped.value
+
+    def shift(self):
+        if self.is_empty():
+            return None
+        shifted = self.head
+        if self.__len__() == 1:
+            self.head = None
+            self.tail = None
+            self.length -= 1
+            return shifted
+        self.head = self.head.next
+        self.head.prev = None
+        self.length -= 1
+        return shifted
+
+    def unshift(self, value):
+        new_node = Node(value)
+        if self.is_empty():
+            self.head = new_node
+            self.tail = new_node
+            self.length += 1
+        else:
+            self.head.prev = new_node
+            new_node.next = self.head
+            self.head = new_node
+            self.length += 1
+
+    def insert(self, index, value):
+        if index >= len(self):
+            self.push(value)
+        elif index == 0:
+            self.unshift(value)
+        else:
+            new_node = Node(value)
+            current = self.head
+            for ind in range(index):
+                current = current.next
+            new_node.prev = current.prev
+            new_node.next = current
+            current.prev.next = new_node
+            current.prev = new_node
+            self.length += 1
+
+    def find(self, value):
+        for ind in self:
+            if ind == value:
+                return value
+        return None
+
+    def get(self, index):
+        current = self.head
+        for ind in range(index):
+            current = current.next
+        return current
+
+    def reverse(self):
+        if self.head == None:
+            pass
+        elif self.head == self.tail:
+            pass
+        else:
+            current = self.head
+            saved_next = current.next
+            while saved_next is not None:
+                current.prev = saved_next
+                saved_pre = current
+                current = saved_next
+                saved_next = current.next
+                current.next = saved_prev
+            self.head.next = None
+            self.tail.prev = None
+            zm = self.head
+            self.head = self.tail
+            self.tail = zm
+
+    def print(self):
+        for ind in self:
+            print(float("%.1f" % ind), end=' ')
+
+
+list1 = LinkedList()
+N = int(input())
+if N != 0:
+    lis = input().strip().split()
+    lis = [int(i) for i in lis]
+    for i in lis:
+        list1.push(i)
+
+M = int(input())
+for i in range(M):
+    string = input().strip().split()
+    if len(string) == 1:
+        if string[0] == "pop":
+            list1.pop()
+        if string[0] == "shift":
+            list1.shift()
+    if len(string) == 2:
+        if string[0] == "push":
+            list1.push(float(string[1]))
+        if string[0] == "unshift":
+            list1.unshift(float(string[1]))
+    if len(string) == 3:
+        if string[0] == "insert":
+            list1.insert(int(string[1]), float(string[2]))
+for i in range(len(list1) - 1, -1, -1):
+    print(float("%.1f" % list1[i]), end=' ')
+print()
+list1.print()
