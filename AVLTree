@@ -1,0 +1,183 @@
+class AVLTree:
+    class Node:
+        def __init__(self, key, value, left = None, right = None, height = 0):
+            self.key = key
+            self.value = value
+            self.left = left
+            self.right = right
+            self.height = height
+
+        def __str__(self):
+            if self.left is None:
+                left = self.left.key
+            else:
+                left = None
+            if self.right is None:
+                right = self.right.key
+            else:
+                right = None
+            return self.key + '; ' + 'h = ' + str(self.height) + '; left = ' + left + '; ' + 'right = ' + right
+
+    def __init__(self):
+        self.root = None
+        self.size = 0
+    
+    def __contains__(self, key):
+        node = self.root
+        while node is not None:
+            if node.key == key:
+                return True
+            if key < node.key:
+                node = node.left
+            else:
+                node = node.right
+        return False
+    
+    def get_height(self, node):
+        if node is None:
+            return -1
+        return node.height
+
+    def get_new_height(self, node):
+        new_height = 1 + max(self.get_height(node.left), self.get_height(node.right))
+        return new_height
+
+    def leftRotate(self, node1):
+        node2 = node1.right
+        node3 = node2.left
+        node2.left = node1
+        node1.right = node3
+        node1.height = self.get_new_height(node1)
+        node2.height = self.get_new_height(node2)
+        return node2
+    
+    def rightRotate(self, node1):
+        node2 = node1.left
+        node3 = node2.right
+        node2.right = node1
+        node1.left = node3
+        node1.height = self.get_new_height(node1)
+        node2.height = self.get_new_height(node2)
+        return node2
+
+    def getBalance(self, node):
+        balance = self.get_height(node.right) - self.get_height(node.left)
+        return balance
+    
+    def inserting(self, node, key, value):
+        if node is None:
+            self.size += 1
+            return self.Node(key, value)
+        if key < node.key:
+            node.left = self.inserting(node.left, key, value)
+            if self.getBalance(node) == -2:
+                if self.getBalance(node.left) == 1:
+                    node.left = self.leftRotate(node.left)
+                node = self.rightRotate(node)
+        elif key > node.key:
+            node.right = self.inserting(node.right, key, value)
+            if self.getBalance(node) == 2:
+                if self.getBalance(node.right) == -1:
+                    node.right = self.rightRotate(node.right)
+                node = self.leftRotate(node)
+        else:
+            node.value.add_value(value)
+        node.height = self.get_new_height(node)
+        return node
+
+    def insert(self, key, value):
+        if self.root is None:
+            self.root = self.Node(key, value)
+            self.size += 1
+        else:
+            self.root = self.inserting(self.root, key, value)
+
+    def get_keys(self, node):
+        string = ''
+        if node.left is not None:
+            string += self.get_keys(node.left)
+        string += str(node.key) + ' '
+        if node.right is not None:
+            string += self.get_keys(node.right)
+        return string
+
+    def get_all_keys(self):
+        return self.get_keys(self.root)
+
+    def summation(self, node):
+        sum = 0
+        if node.left is not None:
+            sum += self.summation(node.left)
+        sum += len(node.value)
+        if node.right is not None:
+            sum += self.summation(node.right)
+        return sum
+
+    def sum_of_indexes(self):
+        sum = self.summation(self.root)
+        return sum
+    
+    def searching(self, key):
+        node = self.root
+        while node is not None:
+            if key == node.key:
+                return node.value
+            if key < node.key:
+                node = node.left
+            else:
+                node = node.right
+        return -1
+
+class AVLSet:
+    def __init__(self, value=None):
+        self.tree = AVLTree()
+        if value is not None:
+            self.tree.insert(value, None)
+
+    def add_value(self, value):
+        if value not in self.tree:
+            self.tree.insert(value, None)
+            
+    def __len__(self):
+        return self.tree.size
+
+    def __str__(self):
+        return self.tree.get_all_keys()
+
+class InvertedIndex:
+    def __init__(self):
+        self.tree = AVLTree()
+    
+    def print_keys(self):
+        print(self.tree.get_all_keys())
+
+    def indexating(self, word, index):
+        if word in self.tree:
+            self.tree.insert(word, index)
+        else:
+            self.tree.insert(word, AVLSet(value = index))
+
+    def search(self, word):
+        return self.tree.searching(word)
+
+    def get_average_documents_per_word(self):
+        avarage = self.tree.sum_of_indexes() / self.tree.size
+        return int(round(avarage, 0))
+
+if __name__ == "__main__":
+    invertedindex = InvertedIndex()
+    num_documents = int(input())
+    for i in range(num_documents):
+        documents = input().split()
+        for word in documents:
+             invertedindex.indexating(word, i)
+    num_queries = int(input())
+    for i in range(num_queries):
+        word = input()
+        print(invertedindex.search(word))
+    print(invertedindex.get_average_documents_per_word())
+    try:
+        if input() == 'print_keys':
+            invertedindex.print_keys()
+    except:
+         pass
