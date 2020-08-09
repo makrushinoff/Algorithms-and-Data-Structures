@@ -1,0 +1,75 @@
+class Heap:
+    def __init__(self, arr):
+        self.arr = arr
+        self.build()
+
+    @staticmethod
+    def parent(i):
+        return (i - 1) // 2
+
+    @staticmethod
+    def left(i):
+        return (2 * i) + 1
+
+    @staticmethod
+    def right(i):
+        return (2 * i) + 2
+
+    def sift_down(self, elem):
+        i = self.arr.index(elem)
+        left = Heap.left(i)
+        right = Heap.right(i)
+        while left < len(self.arr):
+            j = left
+            if right < len(self.arr) and self.arr[right] < self.arr[left]:
+                j = right
+            if self.arr[i] <= self.arr[j]:
+                break
+            self.arr[i], self.arr[j] = self.arr[j], self.arr[i]
+
+    def minimal(self):
+        if len(self.arr) is None:
+            return
+        min = self.arr[0]
+        print(min)
+
+    def build(self):
+        for i in reversed(range(len(self.arr) // 2 )):
+            self.sift_down(i)
+
+    def sift_up(self, i):
+        while i > 0:
+            parent = Heap.parent(i)
+            if self.arr[i] < self.arr[parent]:
+                self.arr[parent], self.arr[i] = self.arr[i], self.arr[parent]
+            i = parent
+
+    def add(self, elem):
+        self.arr.append(elem)
+        self.sift_up(len(self.arr) - 1)
+
+    def delete(self, elem):
+        leng = len(self.arr)
+        i = self.arr.index(elem)
+        if i == len(self.arr) - 1:
+            self.arr.pop()
+            return
+        self.arr[-1], self.arr[i] = self.arr[i], self.arr[-1]
+        self.arr.pop()
+        leng -= 1
+        if leng == 1:
+            return
+        else:
+            self.sift_down(self.arr[i])
+
+arr = []
+heap = Heap(arr)
+query = int(input())
+for i in range(query):
+    option = input().split()
+    if option[0] == '1':
+        heap.add(int(option[1]))
+    if option[0] == '2':
+        heap.delete(int(option[1]))
+    if option[0] == '3':
+        heap.minimal()
