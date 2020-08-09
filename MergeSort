@@ -1,0 +1,54 @@
+mainlist = input().split(" ")
+
+if mainlist[0].find(".") != -1:
+    i = 0 
+    for a in mainlist:
+        mainlist[i] = float(a)
+        i += 1
+    
+elif mainlist[0].isdigit():
+    i = 0
+    for a in mainlist:
+        mainlist[i] = int(a)
+        i += 1
+        
+def merge(inlist, autlist, low, middle, high):
+    for z in range(low, high + 1):
+        autlist[z] = inlist[z]
+
+    x, y = low, middle + 1
+    for z in range(low, high + 1):
+        if x > middle:
+            inlist[z] = autlist[y]
+            y += 1
+        elif y > high:
+            inlist[z] = autlist[x]
+            x += 1
+        elif autlist[y] < autlist[x]:
+            inlist[z] = autlist[y]
+            y += 1
+        else:
+            inlist[z] = autlist[x]
+            x += 1
+
+
+def sorting(inlist, autlist, low, high):
+    if high <= low:
+        return inlist
+
+    middle = low + (high - low) // 2
+    sorting(inlist, autlist, low, middle)
+    sorting(inlist, autlist, middle + 1, high)
+    merge(inlist, autlist, low, middle, high)
+    return inlist
+
+def BU_merge_sort(inlist):
+    autlist = [None] * len(inlist)
+    sorting(inlist, autlist, 0, len(inlist) - 1)
+    return inlist
+    
+
+mainlist = BU_merge_sort(mainlist)
+
+for g in mainlist:
+    print(g, end=" ")
